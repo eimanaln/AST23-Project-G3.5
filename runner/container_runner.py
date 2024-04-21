@@ -3,7 +3,7 @@ import docker
 from docker.models.containers import Container
 
 
-class ContainerConfig:
+class ContainerConfiguration:
     def __init__(self, image: str, name: str, mount_path: str):
         self.image: str = image
         self.name: str = name
@@ -23,7 +23,7 @@ def create_container_folder(folder_path: str):
         print(f"Folder {folder_path} already exists")
 
 
-def launch_container(config: ContainerConfig) -> Container:
+def launch_container(config: ContainerConfiguration) -> Container:
     create_container_folder(config.mount_path)
     container = client.containers.run(
         config.image,
@@ -38,7 +38,7 @@ def launch_container(config: ContainerConfig) -> Container:
     return container
 
 
-def launch_all_containers(container_configs: list[ContainerConfig]):
+def launch_all_containers(container_configs: list[ContainerConfiguration]):
     # Launch the containers
     # tty and command are used to keep the container running: https://stackoverflow.com/a/54623344/14684936
     for config in container_configs:
