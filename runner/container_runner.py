@@ -24,6 +24,7 @@ def create_container_folder(folder_name: str):
 
 
 def launch_container(config) -> Container:
+    create_container_folder(config['name'])
     container = client.containers.run(
         config["image"],
         detach=True,
@@ -41,7 +42,6 @@ def launch_all_containers():
     # Launch the containers
     # tty and command are used to keep the container running: https://stackoverflow.com/a/54623344/14684936
     for config in container_configs:
-        create_container_folder(config['name'])
         container = launch_container(config)
         running_containers.append(container)
 
