@@ -52,8 +52,3 @@ def stop_all_containers():
     for container in running_containers:
         container.stop()
     print("Containers stopped.")
-
-
-if __name__ == "__main__":
-    launch_all_containers()
-    stop_all_containers()
