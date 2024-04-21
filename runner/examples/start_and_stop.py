@@ -1,6 +1,7 @@
 import os
 
-from runner.container_runner import launch_all_containers, stop_all_containers, ContainerConfiguration
+from runner.container_runner import launch_all_containers, stop_all_containers
+from runner.container_configuration import ContainerConfiguration
 
 if __name__ == "__main__":
     BASE_PATH = os.getcwd()
