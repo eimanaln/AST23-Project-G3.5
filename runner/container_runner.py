@@ -13,12 +13,6 @@ class ContainerConfig:
 # 2. Create a Docker client
 client = docker.from_env()
 BASE_PATH = os.getcwd()
-# 3. Define the configurations for the containers
-container_configs: list[ContainerConfig] = [
-    ContainerConfig(image="ubuntu:18.04", name="ubuntu_18", mount_path=f"{BASE_PATH}/ubuntu_18"),
-    ContainerConfig(image="ubuntu:22.04", name="ubuntu_22", mount_path=f"{BASE_PATH}/ubuntu_22"),
-    ContainerConfig(image="fedora", name="fedora", mount_path=f"{BASE_PATH}/fedora")
-]
 running_containers: list[Container] = []
 
 
@@ -46,7 +40,7 @@ def launch_container(config: ContainerConfig) -> Container:
     return container
 
 
-def launch_all_containers():
+def launch_all_containers(container_configs: list[ContainerConfig]):
     # Launch the containers
     # tty and command are used to keep the container running: https://stackoverflow.com/a/54623344/14684936
     for config in container_configs:
