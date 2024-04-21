@@ -2,14 +2,22 @@ import os
 import docker
 from docker.models.containers import Container
 
+
+class ContainerConfig:
+    def __init__(self, image: str, name: str, mount_path: str):
+        self.image: str = image
+        self.name: str = name
+        self.mount_path: str = mount_path
+
+
 # 2. Create a Docker client
 client = docker.from_env()
 BASE_PATH = os.getcwd()
 # 3. Define the configurations for the containers
-container_configs = [
-    {"image": "ubuntu:18.04", "name": "ubuntu_18", "mount_path": f"{BASE_PATH}/ubuntu_18"},
-    {"image": "ubuntu:22.04", "name": "ubuntu_22", "mount_path": f"{BASE_PATH}/ubuntu_22"},
-    {"image": "fedora", "name": "fedora", "mount_path": f"{BASE_PATH}/fedora"}
+container_configs: list[ContainerConfig] = [
+    ContainerConfig(image="ubuntu:18.04", name="ubuntu_18", mount_path=f"{BASE_PATH}/ubuntu_18"),
+    ContainerConfig(image="ubuntu:22.04", name="ubuntu_22", mount_path=f"{BASE_PATH}/ubuntu_22"),
+    ContainerConfig(image="fedora", name="fedora", mount_path=f"{BASE_PATH}/fedora")
 ]
 running_containers: list[Container] = []
 
@@ -23,18 +31,18 @@ def create_container_folder(folder_name: str):
         print(f"Folder {folder_name} already exists at {folder_path}")
 
 
-def launch_container(config) -> Container:
+def launch_container(config: ContainerConfig) -> Container:
     create_container_folder(config['name'])
     container = client.containers.run(
-        config["image"],
+        config.image,
         detach=True,
-        name=config["name"],
-        volumes={config["mount_path"]: {"bind": "/mnt", "mode": "rw"}},
+        name=config.name,
+        volumes={config.mount_path: {"bind": "/mnt", "mode": "rw"}},
         privileged=True,
         command="/bin/bash",
         tty=True
     )
-    print(f"Container {config['name']} launched with ID {container.id}")
+    print(f"Container {config.name} launched with ID {container.id}")
     return container
 
 
