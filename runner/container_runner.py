@@ -12,21 +12,19 @@ class ContainerConfig:
 
 # 2. Create a Docker client
 client = docker.from_env()
-BASE_PATH = os.getcwd()
 running_containers: list[Container] = []
 
 
-def create_container_folder(folder_name: str):
-    folder_path = os.path.join(BASE_PATH, folder_name)
+def create_container_folder(folder_path: str):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-        print(f"Folder {folder_name} created at {folder_path}")
+        print(f"Folder {folder_path} created")
     else:
-        print(f"Folder {folder_name} already exists at {folder_path}")
+        print(f"Folder {folder_path} already exists")
 
 
 def launch_container(config: ContainerConfig) -> Container:
-    create_container_folder(config['name'])
+    create_container_folder(config.mount_path)
     container = client.containers.run(
         config.image,
         detach=True,
