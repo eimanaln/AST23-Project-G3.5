@@ -17,20 +17,32 @@ def create_container_folder(folder_path: str):
         print(f"Folder {folder_path} already exists")
 
 
+def find_container(container_name: str):
+    try:
+        return client.containers.get(container_name)
+    except:
+        return None
+
+
 def launch_container(config: ContainerConfiguration) -> Container:
-    create_container_folder(config.mount_path)
-    container: Container = client.containers.run(
-        image=config.image,
-        detach=True,
-        name=config.name,
-        volumes={config.mount_path: {"bind": "/mnt", "mode": "rw"}},
-        privileged=True,
-        command="/bin/bash",
-        tty=True
-    )
-    for command in config.post_init_commands:
-        print(container.exec_run(cmd = command))
-    print(f"Container {config.name} launched with ID {container.id}")
+    container: Container = find_container(config.name)
+    if not container:
+        create_container_folder(config.mount_path)
+        container: Container = client.containers.run(
+            image=config.image,
+            detach=True,
+            name=config.name,
+            volumes={config.mount_path: {"bind": "/mnt", "mode": "rw"}},
+            privileged=True,
+            command="/bin/bash",
+            tty=True
+        )
+        for command in config.post_init_commands:
+            print(container.exec_run(cmd=command))
+        print(f"Container {config.name} launched with ID {container.id}")
+    else:
+        container.start()
+        print(f"Container {config.name} already exists.")
     return container
 
 
