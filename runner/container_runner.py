@@ -19,8 +19,8 @@ def create_container_folder(folder_path: str):
 
 def launch_container(config: ContainerConfiguration) -> Container:
     create_container_folder(config.mount_path)
-    container = client.containers.run(
-        config.image,
+    container: Container = client.containers.run(
+        image=config.image,
         detach=True,
         name=config.name,
         volumes={config.mount_path: {"bind": "/mnt", "mode": "rw"}},
@@ -28,6 +28,8 @@ def launch_container(config: ContainerConfiguration) -> Container:
         command="/bin/bash",
         tty=True
     )
+    for command in config.post_init_commands:
+        print(container.exec_run(cmd = command))
     print(f"Container {config.name} launched with ID {container.id}")
     return container
 
