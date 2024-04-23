@@ -1,0 +1,8 @@
+---
+- name: Create example.txt file
+  hosts: all
+  tasks:
+    - name: Create example.txt file
+      file:
+        path: mnt/example.txt
+        state: touch
