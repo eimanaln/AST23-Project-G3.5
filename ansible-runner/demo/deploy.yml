@@ -1,6 +1,6 @@
 ---
 - name: Create example.txt file
-  hosts: all
+  hosts: cont
   tasks:
     - name: Create example.txt file
       file:
