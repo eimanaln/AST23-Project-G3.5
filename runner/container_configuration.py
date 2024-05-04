@@ -3,4 +3,4 @@ class ContainerConfiguration:
         self.image: str = image
         self.name: str = name
         self.mount_path: str = mount_path
-        self.post_init_commands : list[str] = post_init_commands
+        self.post_init_commands: list[str] = post_init_commands
