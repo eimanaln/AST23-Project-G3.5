@@ -5,8 +5,8 @@ from typing import Generator
 import docker
 from docker.models.containers import Container
 
-from runner.container_configuration import ContainerConfiguration
-from runner.host import Host
+from host_manager.container_configuration import ContainerConfiguration
+from host_manager.host import Host
 
 
 class DockerContainerManager:
