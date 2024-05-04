@@ -1,7 +1,7 @@
 import os
 
-from host_manager.docker_container_manager import DockerContainerManager
-from host_manager.container_configuration import ContainerConfiguration
+from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager
+from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
 
 if __name__ == "__main__":
     BASE_PATH = os.getcwd()

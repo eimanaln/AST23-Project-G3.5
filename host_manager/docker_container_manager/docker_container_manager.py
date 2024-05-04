@@ -3,9 +3,8 @@ import shutil
 from typing import Generator
 
 import docker
-from docker.models.containers import Container
 
-from host_manager.container_configuration import ContainerConfiguration
+from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
 from host_manager.host import Host
 from host_manager.host_manager import HostManager
 
