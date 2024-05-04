@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generator
 
-from host import Host
+from host_manager.host import Host
 
 
 class HostManager(ABC):
