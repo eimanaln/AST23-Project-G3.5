@@ -49,8 +49,23 @@ class DockerContainerManager:
             container.start()
             print(f"Container {config.name} already exists.")
         self.running_containers[container.id] = config
-        # TODO: Return host with correct inventory file
-        return Host(inventory_path='example', id=container.id)
+        inventory_path = self.create_inventory_file(config.name)
+        return Host(inventory_path=inventory_path, id=container.id)
+
+    def create_inventory_file(self, container_name: str) -> str:
+        BASE_PATH = os.getcwd()
+        directory_path = os.path.join(BASE_PATH, 'tmp')
+        print(directory_path)
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
+        inventory_path = os.path.join(directory_path, f"{container_name}_inventory.ini")
+        with open(inventory_path, "w") as f:
+            f.write(f"[cont]\n")
+            f.write(f"{container_name}\n")
+            f.write(f"[cont:vars]\n")
+            f.write("ansible_connection=docker")
+        print(f"Inventory file {inventory_path} created.")
+        return inventory_path
 
     def destroy_host(self, host: Host):
         host_id = host.id
