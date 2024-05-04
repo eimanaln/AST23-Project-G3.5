@@ -1,6 +1,6 @@
 import os
 
-from runner.container_runner import DockerContainerManager
+from runner.docker_container_manager import DockerContainerManager
 from runner.container_configuration import ContainerConfiguration
 
 if __name__ == "__main__":
