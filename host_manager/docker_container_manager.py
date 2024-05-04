@@ -7,9 +7,10 @@ from docker.models.containers import Container
 
 from host_manager.container_configuration import ContainerConfiguration
 from host_manager.host import Host
+from host_manager.host_manager import HostManager
 
 
-class DockerContainerManager:
+class DockerContainerManager(HostManager):
     def __init__(self, container_configs: list[ContainerConfiguration] = [], working_directory: str = None):
         # Create a Docker client
         self.client = docker.from_env()
