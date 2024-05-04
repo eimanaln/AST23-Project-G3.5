@@ -10,11 +10,12 @@ from runner.host import Host
 
 
 class DockerContainerManager:
-    def __init__(self, container_configs: list[ContainerConfiguration] = []):
+    def __init__(self, container_configs: list[ContainerConfiguration] = [], working_directory: str = None):
         # Create a Docker client
         self.client = docker.from_env()
         self.running_containers: dict[str, ContainerConfiguration] = {}
         self.container_configs = container_configs
+        self.working_directory = os.getcwd() if not working_directory else working_directory
 
     def create_container_folder(self, folder_path: str):
         if not os.path.exists(folder_path):
@@ -53,8 +54,7 @@ class DockerContainerManager:
         return Host(inventory_path=inventory_path, id=container.id)
 
     def create_inventory_file(self, container_name: str) -> str:
-        BASE_PATH = os.getcwd()
-        directory_path = os.path.join(BASE_PATH, 'tmp')
+        directory_path = os.path.join(self.working_directory, 'tmp')
         print(directory_path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
