@@ -10,11 +10,11 @@ from runner.host import Host
 
 
 class DockerContainerManager:
-    def __init__(self, contaier_configs: list[ContainerConfiguration] = []):
+    def __init__(self, container_configs: list[ContainerConfiguration] = []):
         # Create a Docker client
         self.client = docker.from_env()
         self.running_containers: dict[str, ContainerConfiguration] = {}
-        self.container_configs = contaier_configs
+        self.container_configs = container_configs
 
     def create_container_folder(self, folder_path: str):
         if not os.path.exists(folder_path):
