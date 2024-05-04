@@ -52,13 +52,6 @@ class DockerContainerManager:
         # TODO: Return host with correct inventory file
         return Host(inventory_path='example', id=container.id)
 
-    def launch_all_containers(self, container_configs: list[ContainerConfiguration]):
-        # Launch the containers
-        # tty and command are used to keep the container running: https://stackoverflow.com/a/54623344/14684936
-        for config in container_configs:
-            container = self.launch_container(config)
-            self.running_containers.append(container)
-
     def destroy_host(self, host: Host):
         host_id = host.id
         container = self.find_container(host_id)
