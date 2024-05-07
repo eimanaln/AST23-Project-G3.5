@@ -1,5 +1,12 @@
+from dataclasses import dataclass
+from typing import Generator
+
+from ansible_runner import RunnerConfig
+
+
+@dataclass
 class DeploymentData():
-    def __init__(self, data, events, stats):
-        self.data = data
-        self.events = events
-        self.stats = stats
+    # TODO: Adapt as needed
+    runner_config: RunnerConfig
+    events: Generator
+    stats: dict
