@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class TestResult():
-    def __init__(self, passed: bool, message: str = ''):
-        self.passed = passed
-        self.message = message
+    passed: bool
+    message: str = ''
