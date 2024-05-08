@@ -1,7 +1,7 @@
-from deployment_data import DeploymentData
+from .deployment_data import DeploymentData
 from host_manager.host import Host
-from test_oracle import TestOracle
-from test_result import TestResult
+from .test_oracle import TestOracle
+from .test_result import TestResult
 
 
 class DummyTestOracle(TestOracle):

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from host_manager.host import Host
-from deployment_data import DeploymentData
-from test_result import TestResult
+from .deployment_data import DeploymentData
+from .test_result import TestResult
 
 
 
