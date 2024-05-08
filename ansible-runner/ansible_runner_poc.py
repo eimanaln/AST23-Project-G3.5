@@ -1,5 +1,6 @@
-from ansible_runner import Runner, RunnerConfig
+from test_runner import TestRunner
 import os
+from test_oracle.dummy_test_oracle import DummyTestOracle
 
 from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager
 from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
@@ -21,23 +22,8 @@ if __name__ == "__main__":
         # ContainerConfiguration(image="fedora", name="fedora", mount_path=f"{container_path}/fedora")
     ]
     manager = DockerContainerManager(container_configs=container_configs)
-
     playbook_path = os.path.join(full_path, "deploy.yml")
-    for host in manager.host_generator():
-        inventory_path = host.inventory_path
-        print(inventory_path)
-        rc = RunnerConfig(
-            private_data_dir=full_path,
-            playbook=playbook_path,
-            inventory=inventory_path
-        )
-        rc.prepare()
-        r = Runner(config=rc)
-        r.run()
-        print("{}: {}".format(r.status, r.rc))
-        for each_host_event in r.events:
-            print(each_host_event['event'])
-        print("Final status:")
-        print(r.stats)
-        manager.destroy_host(host)
+    test_runner = TestRunner(host_manager=manager, playbook_path=playbook_path, test_oracle=DummyTestOracle())
+    test_runner.run_test()
+
 
