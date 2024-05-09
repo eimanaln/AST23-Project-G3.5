@@ -1,8 +1,17 @@
 ---
-- name: Create example.txt file
-  hosts: cont
+- name: Deploy Apache HTTP Server on Ubuntu/Debian
+  hosts: all
+  become: yes 
+
   tasks:
-    - name: Create example.txt file
-      file:
-        path: mnt/example.txt
-        state: touch
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Ensure Apache is running and enabled
+      service: #instead of systemd
+        name: apache2  # or httpd for CentOS/RHEL 
+        state: started
+        enabled: yes
