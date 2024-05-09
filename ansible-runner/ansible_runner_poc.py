@@ -1,5 +1,6 @@
-from test_runner import TestRunner
 import os
+
+from test_runner import TestRunner
 from test_oracle.dummy_test_oracle import DummyTestOracle
 
 from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager
@@ -14,10 +15,10 @@ if __name__ == "__main__":
     # Define the configurations for the containers
     container_configs: list[ContainerConfiguration] = [
         ContainerConfiguration(image="ubuntu:18.04", name="ubuntu_18", mount_path=f"{container_path}/ubuntu_18",
-                               post_init_commands=["apt-get update", "apt-get install -y python3",
-                                                   "ln -s /usr/bin/python3 /usr/bin/python"]),
+                               post_init_commands=["apt-get update", "apt-get install -y python3 sudo",
+                                                    "ln -s /usr/bin/python3 /usr/bin/python"]),
         ContainerConfiguration(image="ubuntu:22.04", name="ubuntu_22", mount_path=f"{container_path}/ubuntu_22",
-                               post_init_commands=["apt-get update", "apt-get install -y python3",
+                               post_init_commands=["apt-get update", "apt-get install -y python3 sudo",
                                                    "ln -s /usr/bin/python3 /usr/bin/python"]),
         # ContainerConfiguration(image="fedora", name="fedora", mount_path=f"{container_path}/fedora")
     ]
