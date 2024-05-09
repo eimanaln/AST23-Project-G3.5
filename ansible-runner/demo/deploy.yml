@@ -15,3 +15,9 @@
         name: apache2  # or httpd for CentOS/RHEL 
         state: started
         enabled: yes
+
+    # allow traffic through port 80
+    - name: Allow Apache through firewall
+      ansible.builtin.ufw:
+        rule: allow
+        name: "Apache Full"

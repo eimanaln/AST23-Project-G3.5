@@ -16,6 +16,7 @@ class DockerContainerManager(HostManager):
         self.running_containers: dict[str, ContainerConfiguration] = {}
         self.container_configs = container_configs
         self.working_directory = os.getcwd() if not working_directory else working_directory
+        self.network_name = "test_network"
 
     def create_container_folder(self, folder_path: str):
         if not os.path.exists(folder_path):
@@ -29,8 +30,38 @@ class DockerContainerManager(HostManager):
             return self.client.containers.get(container_name)
         except docker.errors.NotFound:
             return None
+        
+    def create_docker_network(self, subnet):
+        try:
+            # Check if the network already exists
+            networks = self.client.networks.list()
+            for net in networks:
+                if net.name == self.network_name:
+                    print(f"Network '{self.network_name}' already exists.")
+                    return net  # Return existing network
+
+            # If the network does not exist, create it
+            ipam_pool = docker.types.IPAMPool(
+                subnet=subnet
+            )
+            ipam_config = docker.types.IPAMConfig(
+                pool_configs=[ipam_pool]
+            )
+            network = self.client.networks.create(
+                self.network_name,
+                driver="bridge",
+                ipam=ipam_config
+            )
+            print(f"Created network '{self.network_name}' with ID {network.id}")
+            return network
+        except docker.errors.APIError as e:
+            print(f"Failed to create or check network: {e}")
+
+        
 
     def launch_container(self, config: ContainerConfiguration) -> Host:
+
+        self.create_docker_network(subnet="192.168.1.0/24")
         container = self.find_container(config.name)
         if not container:
             self.create_container_folder(config.mount_path)
@@ -38,6 +69,7 @@ class DockerContainerManager(HostManager):
                 image=config.image,
                 detach=True,
                 name=config.name,
+                network=self.network_name,
                 volumes={config.mount_path: {"bind": "/mnt", "mode": "rw"}},
                 privileged=True,
                 command="/bin/bash",
@@ -51,7 +83,9 @@ class DockerContainerManager(HostManager):
             print(f"Container {config.name} already exists.")
         self.running_containers[container.id] = config
         inventory_path = self.create_inventory_file(config.name)
-        return Host(inventory_path=inventory_path, id=container.id)
+        container.reload() # Reload the container to get the IP address
+        IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
+        return Host(inventory_path=inventory_path, id=container.id, IP_addr=IP_addr)
 
     def create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'tmp')
