@@ -86,9 +86,9 @@ class DockerContainerManager(HostManager):
         self.running_containers[container.id] = config
         inventory_path = self.create_inventory_file(config.name)
         container.reload() # Reload the container to get the IP address
-        #IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
+        container_IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
         IP_addr = self.get_host_ip()
-        return Host(inventory_path=inventory_path, id=container.id, IP_addr=IP_addr)
+        return Host(inventory_path=inventory_path, id=container.id, container_ip=container_IP_addr, IP_addr=IP_addr)
 
     def create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'tmp')

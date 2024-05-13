@@ -24,3 +24,24 @@ class DummyTestOracle(TestOracle):
             # Handle cases where the curl command fails
             return TestResult(False, f"Failed to connect to the server: {e}")
         
+    def vulnerability_scan(self, host: Host, deployment_data: DeploymentData) -> TestResult:
+
+        nmap_command = f"nmap -sV {host.container_ip}"
+        try:
+            result = subprocess.run(nmap_command, shell=True, check=True, text=True, capture_output=True)
+    
+            lines = result.stdout.split('\n')
+            open_ports = []
+            for line in lines:
+                if "open" in line and not line.startswith('Nmap'):  
+                    open_ports.append(line.strip())
+            
+            if open_ports:
+                return TestResult(False, "Open ports found", open_ports)
+
+            else:
+                # Test is passed if no ports are open
+                return TestResult(True, "No open ports found")
+        
+        except subprocess.CalledProcessError as e:
+            return TestResult(False, f"Failed to execute nmap: {e}") 
