@@ -1,6 +1,7 @@
 import os
 import shutil
 from typing import Generator
+import socket
 
 import docker
 
@@ -72,6 +73,7 @@ class DockerContainerManager(HostManager):
                 network=self.network_name,
                 volumes={config.mount_path: {"bind": "/mnt", "mode": "rw"}},
                 privileged=True,
+                ports={"80/tcp": 8080},
                 command="/bin/bash",
                 tty=True
             )
@@ -84,7 +86,8 @@ class DockerContainerManager(HostManager):
         self.running_containers[container.id] = config
         inventory_path = self.create_inventory_file(config.name)
         container.reload() # Reload the container to get the IP address
-        IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
+        #IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
+        IP_addr = self.get_host_ip()
         return Host(inventory_path=inventory_path, id=container.id, IP_addr=IP_addr)
 
     def create_inventory_file(self, container_name: str) -> str:
@@ -116,3 +119,15 @@ class DockerContainerManager(HostManager):
     def host_generator(self) -> Generator[Host, None, None]:
         for container in self.container_configs:
             yield self.launch_container(container)
+
+    def get_host_ip(self):
+        try:
+            # Attempt to connect to an arbitrary public IP
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                s.connect(("8.8.8.8", 80))  # Google's DNS server
+                IP = s.getsockname()[0]
+            return IP
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
+
