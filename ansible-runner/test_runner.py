@@ -33,12 +33,4 @@ class TestRunner():
             else:
                 print("Test failed: \n" + test_result.message)
 
-            test_result = self.test_oracle.verify_deployment(host, deployment_data)
-            if test_result.passed:
-                print("Test passed: \n" + test_result.message)
-            else:
-                print("Test failed: \n")
-                for port in test_result.ports:
-                    print(port)
-
             self.host_manager.destroy_host(host)

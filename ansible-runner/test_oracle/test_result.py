@@ -5,4 +5,3 @@ from dataclasses import dataclass, field
 class TestResult():
     passed: bool
     message: str = ''
-    ports: list[str] = field(default_factory=list)
