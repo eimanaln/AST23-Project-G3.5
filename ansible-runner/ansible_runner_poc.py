@@ -1,7 +1,7 @@
 import os
 
 from test_runner import TestRunner
-from test_oracle.dummy_test_oracle import DummyTestOracle
+from test_oracle.aliveness_oracle import AlivenessOracle
 
 from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager
 from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     ]
     manager = DockerContainerManager(container_configs=container_configs)
     playbook_path = os.path.join(full_path, "deploy.yml")
-    test_runner = TestRunner(host_manager=manager, playbook_path=playbook_path, test_oracle=DummyTestOracle())
+    test_runner = TestRunner(host_manager=manager, playbook_path=playbook_path, test_oracle=AlivenessOracle())
     test_runner.run_test()
 
 

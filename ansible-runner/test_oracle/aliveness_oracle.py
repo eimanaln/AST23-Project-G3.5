@@ -5,7 +5,7 @@ from .test_result import TestResult
 import subprocess
 
 
-class DummyTestOracle(TestOracle):
+class AlivenessOracle(TestOracle):
     def verify_deployment(self, host: Host, deployment_data: DeploymentData) -> TestResult:
 
         # Construct the curl command to send a HEAD request to check server status
