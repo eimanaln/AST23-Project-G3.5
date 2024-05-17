@@ -110,6 +110,7 @@ class DockerContainerManager(HostManager):
         config = self.running_containers[host_id]
         if container:
             container.stop()
+            container.remove()
             print(f"Container {host_id} stopped.")
         else:
             print(f"Container {host_id} not found.")
