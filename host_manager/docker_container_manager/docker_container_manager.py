@@ -4,6 +4,7 @@ from socket import socket, AF_INET, SOCK_DGRAM
 from typing import Generator
 
 import docker
+from docker.client import DockerClient
 from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.networks import Network
@@ -17,11 +18,11 @@ from host_manager.host_manager import HostManager
 class DockerContainerManager(HostManager):
     def __init__(self, container_configs: list[ContainerConfiguration] = [], working_directory: str = None):
         # Create a Docker client
-        self.client = docker.from_env()
+        self.client: DockerClient = docker.from_env()
         self.running_containers: dict[str, ContainerConfiguration] = {}
-        self.container_configs = container_configs
-        self.working_directory = os.getcwd() if not working_directory else working_directory
-        self.network_name = "test_network"
+        self.container_configs: list[ContainerConfiguration] = container_configs
+        self.working_directory: str = os.getcwd() if not working_directory else working_directory
+        self.network_name: str = "test_network"
 
     def destroy_host(self, host: Host) -> None:
         host_id = host.host_id
