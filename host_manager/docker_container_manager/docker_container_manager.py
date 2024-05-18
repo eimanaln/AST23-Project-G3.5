@@ -1,9 +1,13 @@
 import os
 import shutil
+from socket import socket, AF_INET, SOCK_DGRAM
 from typing import Generator
-import socket
 
 import docker
+from docker.errors import APIError, NotFound
+from docker.models.containers import Container
+from docker.models.networks import Network
+from docker.types.networks import IPAMPool, IPAMConfig
 
 from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
 from host_manager.host import Host
@@ -19,20 +23,20 @@ class DockerContainerManager(HostManager):
         self.working_directory = os.getcwd() if not working_directory else working_directory
         self.network_name = "test_network"
 
-    def create_container_folder(self, folder_path: str):
+    def create_container_folder(self, folder_path: str) -> None:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
             print(f"Folder {folder_path} created")
         else:
             print(f"Folder {folder_path} already exists")
 
-    def find_container(self, container_name: str):
+    def find_container(self, container_name: str) -> Container or None:
         try:
             return self.client.containers.get(container_name)
-        except docker.errors.NotFound:
+        except NotFound:
             return None
-        
-    def create_docker_network(self, subnet):
+
+    def create_docker_network(self, subnet) -> Network:
         try:
             # Check if the network already exists
             networks = self.client.networks.list()
@@ -42,12 +46,8 @@ class DockerContainerManager(HostManager):
                     return net  # Return existing network
 
             # If the network does not exist, create it
-            ipam_pool = docker.types.IPAMPool(
-                subnet=subnet
-            )
-            ipam_config = docker.types.IPAMConfig(
-                pool_configs=[ipam_pool]
-            )
+            ipam_pool = IPAMPool(subnet=subnet)
+            ipam_config = IPAMConfig(pool_configs=[ipam_pool])
             network = self.client.networks.create(
                 self.network_name,
                 driver="bridge",
@@ -55,13 +55,10 @@ class DockerContainerManager(HostManager):
             )
             print(f"Created network '{self.network_name}' with ID {network.id}")
             return network
-        except docker.errors.APIError as e:
+        except APIError as e:
             print(f"Failed to create or check network: {e}")
 
-        
-
     def launch_container(self, config: ContainerConfiguration) -> Host:
-
         self.create_docker_network(subnet="192.168.1.0/24")
         container = self.find_container(config.name)
         if not container:
@@ -85,7 +82,7 @@ class DockerContainerManager(HostManager):
             print(f"Container {config.name} already exists.")
         self.running_containers[container.id] = config
         inventory_path = self.create_inventory_file(config.name)
-        container.reload() # Reload the container to get the IP address
+        container.reload()  # Reload the container to get the IP address
         container_IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
         IP_addr = self.get_host_ip()
         return Host(inventory_path=inventory_path, id=container.id, container_ip=container_IP_addr, IP_addr=IP_addr)
@@ -104,7 +101,7 @@ class DockerContainerManager(HostManager):
         print(f"Inventory file {inventory_path} created.")
         return inventory_path
 
-    def destroy_host(self, host: Host):
+    def destroy_host(self, host: Host) -> None:
         host_id = host.id
         container = self.find_container(host_id)
         config = self.running_containers[host_id]
@@ -121,14 +118,13 @@ class DockerContainerManager(HostManager):
         for container in self.container_configs:
             yield self.launch_container(container)
 
-    def get_host_ip(self):
+    def get_host_ip(self) -> str or None:
         try:
             # Attempt to connect to an arbitrary public IP
-            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            with socket(AF_INET, SOCK_DGRAM) as s:
                 s.connect(("8.8.8.8", 80))  # Google's DNS server
                 IP = s.getsockname()[0]
             return IP
         except Exception as e:
             print(f"Error: {e}")
             return None
-
