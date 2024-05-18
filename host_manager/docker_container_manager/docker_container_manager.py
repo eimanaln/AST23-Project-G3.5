@@ -100,9 +100,9 @@ class DockerContainerManager(HostManager):
         self.running_containers[container.id] = config
         inventory_path = self._create_inventory_file(config.name)
         container.reload()  # Reload the container to get the IP address
-        container_IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
-        IP_addr = self._get_host_ip()
-        return Host(inventory_path=inventory_path, id=container.id, container_ip=container_IP_addr, IP_addr=IP_addr)
+        container_ip_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
+        ip_addr = self._get_host_ip()
+        return Host(inventory_path=inventory_path, id=container.id, container_ip=container_ip_addr, ip_addr=ip_addr)
 
     def _create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'tmp')
@@ -123,8 +123,8 @@ class DockerContainerManager(HostManager):
             # Attempt to connect to an arbitrary public IP
             with socket(AF_INET, SOCK_DGRAM) as s:
                 s.connect(("8.8.8.8", 80))  # Google's DNS server
-                IP = s.getsockname()[0]
-            return IP
+                ip = s.getsockname()[0]
+            return ip
         except Exception as e:
             print(f"Error: {e}")
             return None

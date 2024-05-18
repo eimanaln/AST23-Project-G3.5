@@ -9,7 +9,7 @@ class AlivenessOracle(TestOracle):
     def verify_deployment(self, host: Host, deployment_data: DeploymentData) -> TestResult:
 
         # Construct the curl command to send a HEAD request to check server status
-        curl_command = f"curl -I http://{host.IP_addr}:8080 -o /dev/null -w '%{{http_code}}' -s"
+        curl_command = f"curl -I http://{host.ip_addr}:8080 -o /dev/null -w '%{{http_code}}' -s"
 
         try:
             # Execute the curl command
