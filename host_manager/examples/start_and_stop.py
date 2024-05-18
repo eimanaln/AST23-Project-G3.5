@@ -13,5 +13,5 @@ if __name__ == "__main__":
     ]
     manager = DockerContainerManager(container_configs=container_configs)
     for host in manager.host_generator():
-        print(host.id)
+        print(host.host_id)
         manager.destroy_host(host)

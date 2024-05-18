@@ -24,7 +24,7 @@ class DockerContainerManager(HostManager):
         self.network_name = "test_network"
 
     def destroy_host(self, host: Host) -> None:
-        host_id = host.id
+        host_id = host.host_id
         container = self._find_container(host_id)
         config = self.running_containers[host_id]
         if container:
@@ -70,7 +70,7 @@ class DockerContainerManager(HostManager):
                 driver="bridge",
                 ipam=ipam_config
             )
-            print(f"Created network '{self.network_name}' with ID {network.id}")
+            print(f"Created network '{self.network_name}' with ID {network.host_id}")
             return network
         except APIError as e:
             print(f"Failed to create or check network: {e}")
@@ -93,16 +93,16 @@ class DockerContainerManager(HostManager):
             )
             for command in config.post_init_commands:
                 print(container.exec_run(cmd=command))
-            print(f"Container {config.name} launched with ID {container.id}")
+            print(f"Container {config.name} launched with ID {container.host_id}")
         else:
             container.start()
             print(f"Container {config.name} already exists.")
-        self.running_containers[container.id] = config
+        self.running_containers[container.host_id] = config
         inventory_path = self._create_inventory_file(config.name)
         container.reload()  # Reload the container to get the IP address
         container_ip_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
         ip_addr = self._get_host_ip()
-        return Host(inventory_path=inventory_path, id=container.id, container_ip=container_ip_addr, ip_addr=ip_addr)
+        return Host(inventory_path=inventory_path, host_id=container.host_id, container_ip=container_ip_addr, ip_addr=ip_addr)
 
     def _create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'tmp')
