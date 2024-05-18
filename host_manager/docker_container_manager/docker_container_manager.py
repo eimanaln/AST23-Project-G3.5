@@ -23,6 +23,23 @@ class DockerContainerManager(HostManager):
         self.working_directory = os.getcwd() if not working_directory else working_directory
         self.network_name = "test_network"
 
+    def destroy_host(self, host: Host) -> None:
+        host_id = host.id
+        container = self.find_container(host_id)
+        config = self.running_containers[host_id]
+        if container:
+            container.stop()
+            container.remove()
+            print(f"Container {host_id} stopped.")
+        else:
+            print(f"Container {host_id} not found.")
+        shutil.rmtree(config.mount_path, ignore_errors=True)
+        print(f"Folder {config.mount_path} deleted.")
+
+    def host_generator(self) -> Generator[Host, None, None]:
+        for container in self.container_configs:
+            yield self.launch_container(container)
+
     def create_container_folder(self, folder_path: str) -> None:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -100,23 +117,6 @@ class DockerContainerManager(HostManager):
             f.write("ansible_connection=docker")
         print(f"Inventory file {inventory_path} created.")
         return inventory_path
-
-    def destroy_host(self, host: Host) -> None:
-        host_id = host.id
-        container = self.find_container(host_id)
-        config = self.running_containers[host_id]
-        if container:
-            container.stop()
-            container.remove()
-            print(f"Container {host_id} stopped.")
-        else:
-            print(f"Container {host_id} not found.")
-        shutil.rmtree(config.mount_path, ignore_errors=True)
-        print(f"Folder {config.mount_path} deleted.")
-
-    def host_generator(self) -> Generator[Host, None, None]:
-        for container in self.container_configs:
-            yield self.launch_container(container)
 
     def get_host_ip(self) -> str or None:
         try:
