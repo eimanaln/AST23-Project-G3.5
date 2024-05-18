@@ -25,7 +25,7 @@ class DockerContainerManager(HostManager):
 
     def destroy_host(self, host: Host) -> None:
         host_id = host.id
-        container = self.find_container(host_id)
+        container = self._find_container(host_id)
         config = self.running_containers[host_id]
         if container:
             container.stop()
@@ -38,22 +38,22 @@ class DockerContainerManager(HostManager):
 
     def host_generator(self) -> Generator[Host, None, None]:
         for container in self.container_configs:
-            yield self.launch_container(container)
+            yield self._launch_container(container)
 
-    def create_container_folder(self, folder_path: str) -> None:
+    def _create_container_folder(self, folder_path: str) -> None:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
             print(f"Folder {folder_path} created")
         else:
             print(f"Folder {folder_path} already exists")
 
-    def find_container(self, container_name: str) -> Container or None:
+    def _find_container(self, container_name: str) -> Container or None:
         try:
             return self.client.containers.get(container_name)
         except NotFound:
             return None
 
-    def create_docker_network(self, subnet) -> Network:
+    def _create_docker_network(self, subnet) -> Network:
         try:
             # Check if the network already exists
             networks = self.client.networks.list()
@@ -75,11 +75,11 @@ class DockerContainerManager(HostManager):
         except APIError as e:
             print(f"Failed to create or check network: {e}")
 
-    def launch_container(self, config: ContainerConfiguration) -> Host:
-        self.create_docker_network(subnet="192.168.1.0/24")
-        container = self.find_container(config.name)
+    def _launch_container(self, config: ContainerConfiguration) -> Host:
+        self._create_docker_network(subnet="192.168.1.0/24")
+        container = self._find_container(config.name)
         if not container:
-            self.create_container_folder(config.mount_path)
+            self._create_container_folder(config.mount_path)
             container = self.client.containers.run(
                 image=config.image,
                 detach=True,
@@ -98,13 +98,13 @@ class DockerContainerManager(HostManager):
             container.start()
             print(f"Container {config.name} already exists.")
         self.running_containers[container.id] = config
-        inventory_path = self.create_inventory_file(config.name)
+        inventory_path = self._create_inventory_file(config.name)
         container.reload()  # Reload the container to get the IP address
         container_IP_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
-        IP_addr = self.get_host_ip()
+        IP_addr = self._get_host_ip()
         return Host(inventory_path=inventory_path, id=container.id, container_ip=container_IP_addr, IP_addr=IP_addr)
 
-    def create_inventory_file(self, container_name: str) -> str:
+    def _create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'tmp')
         print(directory_path)
         if not os.path.exists(directory_path):
@@ -118,7 +118,7 @@ class DockerContainerManager(HostManager):
         print(f"Inventory file {inventory_path} created.")
         return inventory_path
 
-    def get_host_ip(self) -> str or None:
+    def _get_host_ip(self) -> str or None:
         try:
             # Attempt to connect to an arbitrary public IP
             with socket(AF_INET, SOCK_DGRAM) as s:
