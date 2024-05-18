@@ -34,3 +34,18 @@ class TestRunner():
                 print("Test failed: \n" + test_result.message)
 
             self.host_manager.destroy_host(host)
+            test_result = self.test_oracle.vulnerability_scan(host, deployment_data)
+            if test_result.passed:
+                print("Test passed: \n" + test_result.message)
+            else:
+                print("Test failed: \n")
+                for port in test_result.ports:
+                    print(port)
+
+            test_result = self.test_oracle.verify_play_reacap(host, deployment_data)
+            if test_result.passed:
+                print("Test passed: \n" + test_result.message)
+            else:
+                print("Test failed: \n", test_result.message)
+
+            self.host_manager.destroy_host(host)
