@@ -14,3 +14,7 @@ class TestOracle(ABC):
     @abstractmethod
     def vulnerability_scan(self, host: Host, deployment_data: DeploymentData) -> TestResult:
         pass
+
+    @abstractmethod
+    def verify_play_reacap(self, host: Host, deployment_data: DeploymentData) -> TestResult:
+        pass

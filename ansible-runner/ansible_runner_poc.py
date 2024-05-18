@@ -18,10 +18,10 @@ if __name__ == "__main__":
                                post_init_commands=["apt-get update", "apt-get install -y python3 sudo ufw",
                                                     "ln -s /usr/bin/python3 /usr/bin/python", "sudo ufw enable",
                                                     "sudo ufw allow 80/tcp"]),
-        ContainerConfiguration(image="ubuntu:22.04", name="ubuntu_22", mount_path=f"{container_path}/ubuntu_22",
-                               post_init_commands=["apt-get update", "apt-get install -y python3 sudo ufw",
-                                                   "ln -s /usr/bin/python3 /usr/bin/python", "sudo ufw enable", 
-                                                   "sudo ufw allow 80/tcp"]),
+        #ContainerConfiguration(image="ubuntu:22.04", name="ubuntu_22", mount_path=f"{container_path}/ubuntu_22",
+                               #post_init_commands=["apt-get update", "apt-get install -y python3 sudo ufw",
+                                                   #"ln -s /usr/bin/python3 /usr/bin/python", "sudo ufw enable", 
+                                                   #"sudo ufw allow 80/tcp"]),
         # ContainerConfiguration(image="fedora", name="fedora", mount_path=f"{container_path}/fedora")
     ]
     manager = DockerContainerManager(container_configs=container_configs)

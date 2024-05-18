@@ -27,6 +27,7 @@ class DummyTestOracle(TestOracle):
     def vulnerability_scan(self, host: Host, deployment_data: DeploymentData) -> TestResult:
 
         nmap_command = f"nmap -sV {host.container_ip}"
+        print(host.container_ip)
         try:
             result = subprocess.run(nmap_command, shell=True, check=True, text=True, capture_output=True)
     
@@ -45,3 +46,24 @@ class DummyTestOracle(TestOracle):
         
         except subprocess.CalledProcessError as e:
             return TestResult(False, f"Failed to execute nmap: {e}") 
+        
+    def verify_play_reacap(self, host: Host, deployment_data: DeploymentData) -> TestResult:
+
+        stats = deployment_data.stats
+        
+        unreachable = stats.get('dark', {}) # dark means unreachable
+        failed = stats.get('failures', {})
+        ignored = stats.get('ignored', {})
+        
+        if not unreachable and not failed and not ignored:
+            return TestResult(True, "Deployment successful with no unreachable, failed, or ignored tasks")
+        else:
+            message_parts = []
+            if unreachable:
+                message_parts.append(f"Unreachable: {len(unreachable)}")
+            if failed:
+                message_parts.append(f"Failed: {len(failed)}")
+            if ignored:
+                message_parts.append(f"Ignored: {len(ignored)}")
+            message = "Deployment issues detected: " + ", ".join(message_parts)
+            return TestResult(False, message)
