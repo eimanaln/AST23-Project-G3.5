@@ -10,7 +10,3 @@ class TestOracle(ABC):
     @abstractmethod
     def verify_deployment(self, host: Host, deployment_data: DeploymentData) -> TestResult:
         pass
-
-    @abstractmethod
-    def verify_deployment(self, host: Host, deployment_data: DeploymentData) -> TestResult:
-        pass
