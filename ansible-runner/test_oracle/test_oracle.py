@@ -12,5 +12,5 @@ class TestOracle(ABC):
         pass
 
     @abstractmethod
-    def verify_play_reacap(self, host: Host, deployment_data: DeploymentData) -> TestResult:
+    def verify_deployment(self, host: Host, deployment_data: DeploymentData) -> TestResult:
         pass

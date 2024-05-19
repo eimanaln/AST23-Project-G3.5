@@ -5,7 +5,7 @@ from .test_result import TestResult
 
 
 class RecapOracle(TestOracle):
-    def verify_play_reacap(self, host: Host, deployment_data: DeploymentData) -> TestResult:
+    def verify_deployment(self, host: Host, deployment_data: DeploymentData) -> TestResult:
 
         stats = deployment_data.stats
 

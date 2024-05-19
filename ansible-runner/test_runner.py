@@ -42,7 +42,7 @@ class TestRunner():
                 for port in test_result.ports:
                     print(port)
 
-            test_result = self.test_oracle.verify_play_reacap(host, deployment_data)
+            test_result = self.test_oracle.verify_deployment(host, deployment_data)
             if test_result.passed:
                 print("Test passed: \n" + test_result.message)
             else:
