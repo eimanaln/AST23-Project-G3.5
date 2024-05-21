@@ -114,7 +114,7 @@ class DockerContainerManager(HostManager):
                     ip_addr=ip_addr)
 
     def _create_inventory_file(self, container_name: str) -> str:
-        directory_path = os.path.join(self.working_directory, 'tmp')
+        directory_path = os.path.join(self.working_directory, 'inventory_files')
         print(directory_path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
