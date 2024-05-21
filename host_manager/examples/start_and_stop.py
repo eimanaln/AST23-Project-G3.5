@@ -1,6 +1,6 @@
 import os
 
-from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager, \
+from host_manager.docker_container_manager import DockerContainerManager, \
     ContainerConfiguration
 
 if __name__ == "__main__":

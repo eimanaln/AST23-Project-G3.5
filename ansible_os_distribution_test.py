@@ -5,7 +5,7 @@ from test_runner.test_oracle.aliveness_oracle import AlivenessOracle
 from test_runner.test_oracle.recap_oracle import RecapOracle
 from test_runner.test_oracle.vulnerability_oracle import VulnerabilityOracle
 
-from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager, \
+from host_manager.docker_container_manager import DockerContainerManager, \
     ContainerConfiguration
 
 if __name__ == "__main__":
