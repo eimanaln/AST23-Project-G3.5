@@ -1,9 +1,9 @@
 import os
 
-from test_runner import TestRunner
-from test_oracle.aliveness_oracle import AlivenessOracle
-from test_oracle.recap_oracle import RecapOracle
-from test_oracle.vulnerability_oracle import VulnerabilityOracle
+from test_runner.test_runner import TestRunner
+from test_runner.test_oracle.aliveness_oracle import AlivenessOracle
+from test_runner.test_oracle.recap_oracle import RecapOracle
+from test_runner.test_oracle.vulnerability_oracle import VulnerabilityOracle
 
 from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager
 from host_manager.docker_container_manager.container_configuration import ContainerConfiguration

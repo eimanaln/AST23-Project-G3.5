@@ -1,10 +1,10 @@
 import os
 
 from ansible_runner import RunnerConfig, Runner
-from test_oracle.deployment_data import DeploymentData
+from .test_oracle.deployment_data import DeploymentData
 
 from host_manager.host_manager import HostManager
-from test_oracle.test_oracle import TestOracle
+from .test_oracle.test_oracle import TestOracle
 
 
 class TestRunner():
