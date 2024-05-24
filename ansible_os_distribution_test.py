@@ -18,6 +18,7 @@ if __name__ == "__main__":
         os.makedirs(full_path)
     if not os.path.exists(container_path):
         os.makedirs(container_path)
+
     # Define the configurations for the containers
     container_configs: list[ContainerConfiguration] = [
         ContainerConfiguration(image="ubuntu:18.04", name="ubuntu_18", mount_path=f"{container_path}/ubuntu_18",
@@ -28,7 +29,9 @@ if __name__ == "__main__":
                                post_init_commands=["apt-get update", "apt-get install -y python3 sudo ufw",
                                                    "ln -s /usr/bin/python3 /usr/bin/python", "sudo ufw enable",
                                                    "sudo ufw allow 80/tcp"]),
-        # ContainerConfiguration(image="fedora", name="fedora", mount_path=f"{container_path}/fedora")
+        ContainerConfiguration(image="fedora:39", name="fedora", mount_path=f"{container_path}/fedora",
+                               post_init_commands=["dnf update -y", "dnf install -y python3 sudo systemd",
+                                    "ln -s /usr/bin/python3 /usr/bin/python", "setsid /usr/sbin/init &"])
     ]
     for oracle in [AlivenessOracle(), RecapOracle(), VulnerabilityOracle()]:
         manager = DockerContainerManager(container_configs=container_configs, working_directory=container_path)
