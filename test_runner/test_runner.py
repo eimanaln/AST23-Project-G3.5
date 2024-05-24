@@ -17,7 +17,6 @@ class TestRunner():
     def run_test(self):
         for host in self.host_manager.host_generator():
             inventory_path = host.inventory_path
-            print(inventory_path)
             rc = RunnerConfig(
                 private_data_dir=self.private_data_dir,
                 playbook=self.playbook_path,

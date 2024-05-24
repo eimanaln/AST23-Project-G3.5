@@ -115,7 +115,6 @@ class DockerContainerManager(HostManager):
 
     def _create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'inventory_files')
-        print(directory_path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
         inventory_path = os.path.join(directory_path, f"{container_name}_inventory.ini")
