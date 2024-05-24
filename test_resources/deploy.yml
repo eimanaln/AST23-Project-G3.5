@@ -1,23 +1,54 @@
 ---
 - name: Deploy Apache HTTP Server on Ubuntu/Debian
   hosts: all
-  become: yes 
+  become: yes
 
   tasks:
-    - name: Install Apache2
+    - name: Ensure the apt package list is updated (Debian-based systems)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Apache2 on Debian-based systems
       apt:
         name: apache2
         state: present
-        update_cache: yes
+      when: ansible_os_family == "Debian"
 
-    - name: Ensure Apache is running and enabled
-      service: #instead of systemd
-        name: apache2  # or httpd for CentOS/RHEL 
+    - name: Ensure Apache is running and enabled on Debian-based systems
+      service:
+        name: apache2
         state: started
         enabled: yes
+      when: ansible_os_family == "Debian"
 
-    # allow traffic through port 80
-    - name: Allow Apache through firewall
-      ansible.builtin.ufw:
+    - name: Allow Apache through UFW on Debian-based systems
+      ufw:
         rule: allow
         name: "Apache Full"
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure the yum package list is updated (RedHat-based systems)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Apache on RedHat-based systems
+      yum:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    #- name: Ensure Apache is running and enabled on RedHat-based systems 
+      #service: #service and systemctl commands don't work inside fedora
+        #name: httpd
+        #state: started
+        #enabled: yes
+      #when: ansible_os_family == "RedHat"
+
+    - name: Allow Apache through firewall on RedHat-based systems
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == "RedHat"
