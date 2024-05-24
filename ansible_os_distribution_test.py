@@ -1,17 +1,19 @@
 import os
 
-from test_runner import TestRunner
-from test_oracle.aliveness_oracle import AlivenessOracle
-from test_oracle.recap_oracle import RecapOracle
-from test_oracle.vulnerability_oracle import VulnerabilityOracle
+from test_runner.test_runner import TestRunner
+from test_runner.test_oracle.aliveness_oracle import AlivenessOracle
+from test_runner.test_oracle.recap_oracle import RecapOracle
+from test_runner.test_oracle.vulnerability_oracle import VulnerabilityOracle
 
-from host_manager.docker_container_manager.docker_container_manager import DockerContainerManager
-from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
+from host_manager.docker_container_manager import DockerContainerManager, \
+    ContainerConfiguration
 
 if __name__ == "__main__":
     BASE_PATH = os.getcwd()
-    full_path = os.path.join(BASE_PATH, "demo")
+    full_path = os.path.join(BASE_PATH, "temporary_test_data")
     container_path = os.path.join(full_path, "containers")
+    artifacts_path = os.path.join(full_path, "artifacts")
+    playbook_path = os.path.join(BASE_PATH, "test_resources", "deploy.yml")
     if not os.path.exists(full_path):
         os.makedirs(full_path)
     # Define the configurations for the containers
@@ -27,9 +29,8 @@ if __name__ == "__main__":
         # ContainerConfiguration(image="fedora", name="fedora", mount_path=f"{container_path}/fedora")
     ]
     for oracle in [AlivenessOracle(), RecapOracle(), VulnerabilityOracle()]:
-        manager = DockerContainerManager(container_configs=container_configs)
-        playbook_path = os.path.join(full_path, "deploy.yml")
-        test_runner = TestRunner(host_manager=manager, playbook_path=playbook_path, test_oracle=oracle)
+        manager = DockerContainerManager(container_configs=container_configs, working_directory=container_path)
+        test_runner = TestRunner(host_manager=manager, playbook_path=playbook_path, test_oracle=oracle, private_data_dir=artifacts_path)
         test_runner.run_test()
 
 

@@ -10,9 +10,16 @@ from docker.models.containers import Container
 from docker.models.networks import Network
 from docker.types.networks import IPAMPool, IPAMConfig
 
-from host_manager.docker_container_manager.container_configuration import ContainerConfiguration
 from host_manager.host import Host
 from host_manager.host_manager import HostManager
+
+
+class ContainerConfiguration:
+    def __init__(self, image: str, name: str, mount_path: str, post_init_commands: list[str] = []):
+        self.image: str = image
+        self.name: str = name
+        self.mount_path: str = mount_path
+        self.post_init_commands: list[str] = post_init_commands
 
 
 class DockerContainerManager(HostManager):
@@ -103,10 +110,11 @@ class DockerContainerManager(HostManager):
         container.reload()  # Reload the container to get the IP address
         container_ip_addr = container.attrs['NetworkSettings']['Networks'][self.network_name]['IPAddress']
         ip_addr = self._get_host_ip()
-        return Host(inventory_path=inventory_path, host_id=container.id, container_ip=container_ip_addr, ip_addr=ip_addr)
+        return Host(inventory_path=inventory_path, host_id=container.id, container_ip=container_ip_addr,
+                    ip_addr=ip_addr)
 
     def _create_inventory_file(self, container_name: str) -> str:
-        directory_path = os.path.join(self.working_directory, 'tmp')
+        directory_path = os.path.join(self.working_directory, 'inventory_files')
         print(directory_path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
