@@ -39,8 +39,8 @@ class DockerContainerManager(HostManager):
         logger.setLevel(logging.DEBUG)
         # Create a file handler
         log_id = uuid.uuid4().hex[:8]  # Generate a unique ID
-        log_file = os.path.join(self.working_directory, f'container_manager_{log_id}.log')
-        fh = logging.FileHandler(log_file)
+        self.log_file = os.path.join(self.working_directory, f'container_manager_{log_id}.log')
+        fh = logging.FileHandler(self.log_file)
         fh.setLevel(logging.DEBUG)
         # Create a formatter and set the formatter for the handler
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -124,11 +124,15 @@ class DockerContainerManager(HostManager):
                 command="/bin/bash",
                 tty=True
             )
+            command_failed = False
             for command in config.post_init_commands:
                 exec_result = container.exec_run(cmd=command)
                 if exec_result.exit_code != 0:
-                    print(f"Failed to execute command: {command}. See logs at for more details. ({self.logger.name})")
+                    command_failed = True
+                    print(f"Failed to execute command: {command}")
                 self._log(exec_result)
+            if command_failed:
+                print(f"Some commands failed. See logs for more details. ({self.logger.name})")
             self._log_and_print(f"Container {config.name} launched with ID {container.id}")
         else:
             container.start()
