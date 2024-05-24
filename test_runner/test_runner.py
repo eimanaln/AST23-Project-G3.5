@@ -6,6 +6,9 @@ from test_runner.test_oracle.deployment_data import DeploymentData
 from host_manager.host_manager import HostManager
 from test_runner.test_oracle.test_oracle import TestOracle
 
+OKGREEN = '\033[92m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
 
 class TestRunner():
     def __init__(self, host_manager: HostManager, test_oracle: TestOracle, playbook_path: str, private_data_dir: str = None):
@@ -28,8 +31,10 @@ class TestRunner():
             deployment_data = DeploymentData(runner_config=rc, events=r.events, stats=r.stats)
             test_result = self.test_oracle.verify_deployment(host, deployment_data)
             if test_result.passed:
-                print("Test passed: \n" + test_result.message)
+                print(OKGREEN + "Test passed:" + ENDC)
             else:
-                print("Test failed: \n" + test_result.message)
+                print(FAIL + "Test failed:" + test_result.message + ENDC)
+
+            print('Test-Output: ' + test_result.message)
 
             self.host_manager.destroy_host(host)
