@@ -16,6 +16,8 @@ if __name__ == "__main__":
     playbook_path = os.path.join(BASE_PATH, "test_resources", "deploy.yml")
     if not os.path.exists(full_path):
         os.makedirs(full_path)
+    if not os.path.exists(container_path):
+        os.makedirs(container_path)
     # Define the configurations for the containers
     container_configs: list[ContainerConfiguration] = [
         ContainerConfiguration(image="ubuntu:18.04", name="ubuntu_18", mount_path=f"{container_path}/ubuntu_18",

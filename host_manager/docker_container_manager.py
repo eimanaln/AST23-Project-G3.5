@@ -1,5 +1,7 @@
+import logging
 import os
 import shutil
+import uuid
 from socket import socket, AF_INET, SOCK_DGRAM
 from typing import Generator
 
@@ -30,6 +32,29 @@ class DockerContainerManager(HostManager):
         self.container_configs: list[ContainerConfiguration] = container_configs
         self.working_directory: str = os.getcwd() if not working_directory else working_directory
         self.network_name: str = "test_network"
+        self.logger = self._setup_logger()
+
+    def _setup_logger(self):
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+        # Create a file handler
+        log_id = uuid.uuid4().hex[:8]  # Generate a unique ID
+        self.log_file = os.path.join(self.working_directory, f'container_manager_{log_id}.log')
+        fh = logging.FileHandler(self.log_file)
+        fh.setLevel(logging.DEBUG)
+        # Create a formatter and set the formatter for the handler
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        # Add the handler to the logger
+        logger.addHandler(fh)
+        return logger
+
+    def _log(self, message):
+        self.logger.info(message)
+
+    def _log_and_print(self, message):
+        self._log(message)
+        print(message)
 
     def destroy_host(self, host: Host) -> None:
         host_id = host.host_id
@@ -38,11 +63,11 @@ class DockerContainerManager(HostManager):
         if container:
             container.stop()
             container.remove()
-            print(f"Container {host_id} stopped.")
+            self._log(f"Container {host_id} stopped.")
         else:
-            print(f"Container {host_id} not found.")
+            self._log(f"Container {host_id} not found.")
         shutil.rmtree(config.mount_path, ignore_errors=True)
-        print(f"Folder {config.mount_path} deleted.")
+        self._log(f"Folder {config.mount_path} deleted.")
 
     def host_generator(self) -> Generator[Host, None, None]:
         for container in self.container_configs:
@@ -51,9 +76,9 @@ class DockerContainerManager(HostManager):
     def _create_container_folder(self, folder_path: str) -> None:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-            print(f"Folder {folder_path} created")
+            self._log(f"Folder {folder_path} created")
         else:
-            print(f"Folder {folder_path} already exists")
+            self._log(f"Folder {folder_path} already exists")
 
     def _find_container(self, container_name: str) -> Container or None:
         try:
@@ -67,7 +92,7 @@ class DockerContainerManager(HostManager):
             networks = self.client.networks.list()
             for net in networks:
                 if net.name == self.network_name:
-                    print(f"Network '{self.network_name}' already exists.")
+                    self._log(f"Network '{self.network_name}' already exists.")
                     return net  # Return existing network
 
             # If the network does not exist, create it
@@ -78,10 +103,10 @@ class DockerContainerManager(HostManager):
                 driver="bridge",
                 ipam=ipam_config
             )
-            print(f"Created network '{self.network_name}' with ID {network.host_id}")
+            self._log(f"Created network '{self.network_name}' with ID {network.host_id}")
             return network
         except APIError as e:
-            print(f"Failed to create or check network: {e}")
+            self._log_and_print(f"Failed to create or check network: {e}")
 
     def _launch_container(self, config: ContainerConfiguration) -> Host:
         self._create_docker_network(subnet="192.168.1.0/24")
@@ -99,12 +124,19 @@ class DockerContainerManager(HostManager):
                 command="/bin/bash",
                 tty=True
             )
+            command_failed = False
             for command in config.post_init_commands:
-                print(container.exec_run(cmd=command))
-            print(f"Container {config.name} launched with ID {container.id}")
+                exec_result = container.exec_run(cmd=command)
+                if exec_result.exit_code != 0:
+                    command_failed = True
+                    print(f"Failed to execute command: {command}")
+                self._log(exec_result)
+            if command_failed:
+                print(f"Some commands failed. See logs for more details. ({self.logger.name})")
+            self._log_and_print(f"Container {config.name} launched with ID {container.id}")
         else:
             container.start()
-            print(f"Container {config.name} already exists.")
+            self._log(f"Container {config.name} already exists.")
         self.running_containers[container.id] = config
         inventory_path = self._create_inventory_file(config.name)
         container.reload()  # Reload the container to get the IP address
@@ -115,7 +147,6 @@ class DockerContainerManager(HostManager):
 
     def _create_inventory_file(self, container_name: str) -> str:
         directory_path = os.path.join(self.working_directory, 'inventory_files')
-        print(directory_path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
         inventory_path = os.path.join(directory_path, f"{container_name}_inventory.ini")
@@ -124,7 +155,7 @@ class DockerContainerManager(HostManager):
             f.write(f"{container_name}\n")
             f.write(f"[cont:vars]\n")
             f.write("ansible_connection=docker")
-        print(f"Inventory file {inventory_path} created.")
+        self._log(f"Inventory file {inventory_path} created.")
         return inventory_path
 
     def _get_host_ip(self) -> str or None:
