@@ -10,8 +10,8 @@ We present an automated testing framework designed to verify the cross-platform 
 
 ### Installation
 1. Clone the repository:  
-   `git clone https://github.com/eimanaln/AST24-Project-G3_5.git`  
-   `cd AST24-Project-G3_5`
+   `git clone https://github.com/eimanaln/AST24-Project-G3-5.git`  
+   `cd AST24-Project-G3-5`
 2. Install the required Python packages using pipenv  
     `pipenv install`
 
