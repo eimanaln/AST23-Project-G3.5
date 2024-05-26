@@ -1,0 +1,52 @@
+---
+- name: Deploy NGINX server
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Ensure NGINX is installed on Debian
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure NGINX is installed on Red Hat
+      yum:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure NGINX is running and enabled on Debian
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure NGINX is running and enabled on Red Hat
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Open port 80 for HTTP on Debian
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+      when: ansible_os_family == "Debian"
+
+    - name: Open port 80 for HTTP on Red Hat
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == "RedHat"
+
+    - name: Reload firewalld on Red Hat
+      firewalld:
+        state: reloaded
+      when: ansible_os_family == "RedHat"
